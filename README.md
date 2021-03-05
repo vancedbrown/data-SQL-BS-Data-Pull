@@ -1,2 +1,2 @@
 # data-SQL-BS-Data-Pull
-This project queries data from the SPG database via SQL to create CSV files
+This project queries data from Intranet via SQL to create CSV files
