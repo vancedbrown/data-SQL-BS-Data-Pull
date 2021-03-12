@@ -3,7 +3,7 @@ library(readr)
 library(here)
 library(lubridate)
 
-############## MAKE SURE TO CHECK CORRECT INDEX FILE IS BEING PULLED!!!!!##########
+############## THIS SCRIPT SHOULD BE USED FOR MID-WEEK DATA PULL, NO PIG OR INDEX!!!##########
 
 studs<-c('High Desert',
          'MB 7081',
@@ -52,15 +52,6 @@ split <- "SELECT [StudID] as 'Boar Stud'
 FROM [Intranet].[dbo].[Boar_Split]"
 splitraw <- getSQL('Intranet',query=split)
 
-pig <- "SELECT [StudID] AS 'Boar Stud'
-,[BoarID]
-,[Breed]
-,[Status] AS 'Boar Status'
-,[Date_Arrival]
-,[Date_Studout]
-,[Dispose_Code]
-FROM [Intranet].[dbo].[Boar_Pig]"
-pigraw <- getSQL('Intranet',query=pig)
 
 coll <- "SELECT [StudID] as 'Boar Stud'
 ,[Collnum]
@@ -126,16 +117,6 @@ dist<-distraw %>%
 split<-splitraw %>% 
   filter(`Boar Stud`%in%studs)
 
-index<-read_csv('index.csv',col_types = cols(Tattoo = col_character()))
-
-# index<-index[c(2,4)]
-
-pigraw1<-left_join(x = pigraw, y=index,by=c("BoarID"="Tattoo"))
-
-pig<-pigraw1 %>%
-  filter(`Boar Stud`%in%studs) %>%
-  mutate(Date_Arrival=as.Date(Date_Arrival),
-         Date_Studout=as.Date(Date_Studout))
 
 look<-lookraw %>% 
   filter(`Boar Stud`%in%studs)
@@ -160,35 +141,10 @@ data3<-left_join(x = data1,y = data2,by=c("Boar Stud"="Boar Stud"))
 write_csv(x = coll,path=here::here('coll.csv'),append = FALSE)
 write_csv(x = dist,path = here::here('dist.csv'), append = FALSE)
 write_csv(x = split,path = here::here('split.csv'), append = FALSE)
-write_csv(x = pig,path = here::here('pig.csv'), append = FALSE)
 write_csv(x = look,path = here::here('look.csv'), append = FALSE)
 write_csv(x = trt,path = here::here('trt.csv'), append = FALSE)
 write_csv(x = data3,path = here::here('dates.csv'), append = FALSE)
 write_csv(x = batch,path = here::here('batch.csv'), append = FALSE)
-
-############### PULL INDEXES FOR NEXT WEEK #######################
-
-
-oldindex<-read_csv('index.csv',col_types = cols(Tattoo = col_character()))
-write_csv(x = oldindex,path = here::here('oldindex.csv'),append = FALSE)
-
-ind <- "SELECT
-[SPGid] as 'Tattoo'
-,[DV_IDX] as 'Index'
-FROM [Intranet].[dbo].[ProductIdx]
-WHERE [Product] in ('D1_Heat','LW_SPG','LR_SPG_PNW')"
-indexraw <- getSQL('Intranet',query=ind)
-
-write_csv(x = indexraw,path = here::here('index.csv'), append = FALSE)
-
-######## BUILD INDEX ARCHIVE ############
-
-pig1<-pig %>%
-  mutate("WeekBeginning"=floor_date(x = today(),unit = "week",week_start = 1)-7) %>%
-  filter(Date_Arrival>='2016-01-01') %>%
-  select(c(2,8,9))
-
-write_csv(x = pig1,path = here::here("indexarchive.csv"),append = TRUE)
 
 
 ############## SAVE FILES FOR NETWORK FOLDER ###################
@@ -197,10 +153,7 @@ write_csv(x = pig1,path = here::here("indexarchive.csv"),append = TRUE)
 write_csv(x = coll,path='//spgfs1/SemenQATesting/PRISM Files/coll.csv',append = FALSE)
 write_csv(x = dist,path ='//spgfs1/SemenQATesting/PRISM Files/dist.csv', append = FALSE)
 write_csv(x = split,path ='//spgfs1/SemenQATesting/PRISM Files/split.csv', append = FALSE)
-write_csv(x = pig,path = '//spgfs1/SemenQATesting/PRISM Files/pig.csv', append = FALSE)
 write_csv(x = look,path = '//spgfs1/SemenQATesting/PRISM Files/look.csv', append = FALSE)
 write_csv(x = trt,path = '//spgfs1/SemenQATesting/PRISM Files/trt.csv', append = FALSE)
 write_csv(x = data3,path = '//spgfs1/SemenQATesting/PRISM Files/dates.csv', append = FALSE)
 write_csv(x = batch,path = '//spgfs1/SemenQATesting/PRISM Files/batch.csv', append = FALSE)
-
-
