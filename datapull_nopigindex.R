@@ -5,29 +5,17 @@ library(lubridate)
 
 ############## THIS SCRIPT SHOULD BE USED FOR MID-WEEK DATA PULL, NO PIG OR INDEX!!!##########
 
-studs<-c('High Desert',
-         'MB 7081',
+studs<-c('MB 7081',
          'MB 7082',
          'MB 7092',
          'MB 7093',
          'MB 7094',
          'MBW Cimarron',
          'MBW Cyclone',
-         'MBW Illinois',
          'MBW Yuma',
-         'Princeton',
          'Skyline Boar Stud',
          'SPGNC',
-         'SPGVA',
-         'SPGTX',
-         'Norson',
-         'GCM7-4',
-         'GCM23-4',
-         'Clinton',
-         'Ingold',
-         'Prestage MS',
-         'MB 7083',
-         'MB 7084')
+         'SPGVA')
 
 source('C:/Users/vance/Documents/myR/functions/getSQL.r')
 
@@ -138,13 +126,13 @@ data2<-dist %>%
 
 data3<-left_join(x = data1,y = data2,by=c("Boar Stud"="Boar Stud"))
 
-write_csv(x = coll,path=here::here('coll.csv'),append = FALSE)
-write_csv(x = dist,path = here::here('dist.csv'), append = FALSE)
-write_csv(x = split,path = here::here('split.csv'), append = FALSE)
-write_csv(x = look,path = here::here('look.csv'), append = FALSE)
-write_csv(x = trt,path = here::here('trt.csv'), append = FALSE)
-write_csv(x = data3,path = here::here('dates.csv'), append = FALSE)
-write_csv(x = batch,path = here::here('batch.csv'), append = FALSE)
+write_csv(x = coll,file =here::here('coll.csv'),append = FALSE)
+write_csv(x = dist,file = here::here('dist.csv'), append = FALSE)
+write_csv(x = split,file = here::here('split.csv'), append = FALSE)
+write_csv(x = look,file = here::here('look.csv'), append = FALSE)
+write_csv(x = trt,file = here::here('trt.csv'), append = FALSE)
+write_csv(x = data3,file = here::here('dates.csv'), append = FALSE)
+write_csv(x = batch,file = here::here('batch.csv'), append = FALSE)
 
 
 ############## SAVE FILES FOR NETWORK FOLDER ###################

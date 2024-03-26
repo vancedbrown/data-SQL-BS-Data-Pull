@@ -3,31 +3,22 @@ library(readr)
 library(here)
 library(lubridate)
 
+# weekindex<-read_csv('indexarchive.csv',col_types = cols(BoarID = col_character())) %>%
+#   filter(WeekBeginning=='2022-06-20')
+
 ############## MAKE SURE TO CHECK CORRECT INDEX FILE IS BEING PULLED!!!!!##########
 
-studs<-c('High Desert',
-         'MB 7081',
+studs<-c('MB 7081',
          'MB 7082',
          'MB 7092',
          'MB 7093',
          'MB 7094',
          'MBW Cimarron',
          'MBW Cyclone',
-         'MBW Illinois',
          'MBW Yuma',
-         'Princeton',
          'Skyline Boar Stud',
          'SPGNC',
-         'SPGVA',
-         'SPGTX',
-         'Norson',
-         'GCM7-4',
-         'GCM23-4',
-         'Clinton',
-         'Ingold',
-         'Prestage MS',
-         'MB 7083',
-         'MB 7084')
+         'SPGVA')
 
 source('C:/Users/vance/Documents/myR/functions/getSQL.r')
 
@@ -59,7 +50,8 @@ pig <- "SELECT [StudID] AS 'Boar Stud'
 ,[Date_Arrival]
 ,[Date_Studout]
 ,[Dispose_Code]
-FROM [Intranet].[dbo].[Boar_Pig]"
+FROM [Intranet].[dbo].[Boar_Pig]
+WHERE [BoarID] not like ('PIC%')"
 pigraw <- getSQL('Intranet',query=pig)
 
 coll <- "SELECT [StudID] as 'Boar Stud'
@@ -130,6 +122,10 @@ index<-read_csv('index.csv',col_types = cols(Tattoo = col_character()))
 
 # index<-index[c(2,4)]
 
+pigraw1<-left_join(x = pigraw, y = weekindex, by=c("BoarID"="BoarID"))
+
+pigraw1<-pigraw1[c(-9)]
+
 pigraw1<-left_join(x = pigraw, y=index,by=c("BoarID"="Tattoo"))
 
 pig<-pigraw1 %>%
@@ -176,10 +172,20 @@ ind <- "SELECT
 [SPGid] as 'Tattoo'
 ,[DV_IDX] as 'Index'
 FROM [Intranet].[dbo].[ProductIdx]
-WHERE [Product] in ('D1_Heat','LW_SPG','LR_SPG_PNW')"
+WHERE [Product] in ('D1_Heat','LW_SPG','LR_GN')"
 indexraw <- getSQL('Intranet',query=ind)
 
-write_csv(x = indexraw,path = here::here('index.csv'), append = FALSE)
+ind2 <- "SELECT a.[BoarID] AS 'Tattoo'
+	  ,b.[idx] AS 'Index'
+  FROM [Intranet].[dbo].[Boar_Pig] a
+  inner join [OADB].[reports].[idxCurrent] b on a.[Name] = b.[spg_id]
+  WHERE [Breed] in ('PICL02', 'PICL03','PIC800', 'DNA200','DNA400','DNA600','TNLR')"
+indexraw2 <- getSQL('Intranet',query=ind2)
+
+indexraw3<-rbind(indexraw,indexraw2)
+
+
+write_csv(x = indexraw3,path = here::here('index.csv'), append = FALSE)
 
 ######## BUILD INDEX ARCHIVE ############
 
